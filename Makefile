@@ -8,11 +8,11 @@ kernel.img: build/ build/loader.bin build/kernel.bin
 	-cat build/kernel.bin >> kernel.img
 
 
-build/loader.bin: loader.asm
-	nasm -fbin loader.asm -o build/loader.bin	
+build/loader.bin: src/loader.asm
+	nasm -fbin src/loader.asm -o build/loader.bin	
 	
-build/kernel.bin: kernel.asm
-	nasm -fbin kernel.asm -o build/kernel.bin
+build/kernel.bin: src/kernel.asm
+	nasm -fbin src/kernel.asm -o build/kernel.bin
 
 build/:
 	mkdir build
