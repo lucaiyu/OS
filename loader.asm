@@ -9,58 +9,18 @@ int 0x10
 mov si, msg
 call print
 
-mov ah, 0x0e
-mov al, 0x0a
-int 0x10
-mov al, 0x0d
-int 0x10
+call printnl
 
-mov dh, 0x01
-mov bx, 0x9000; es:bx=0x09000
+mov dh, 0x01 ;sector num
+mov cl, 0x02 ;sector offset
+mov bx, 0x9000; buffer ptr
 call disk
 
 jmp 0x9000
 
 
-print:
-	pusha
-	jmp start
-start:
-	mov al, [si]
-	cmp al, 0
-	je fin
-	mov ah, 0x0e
-	int 0x10
-	inc si
-	jmp start
-fin:
-	popa
-	ret
-
-disk:
-	pusha
-	push dx
-	
-	mov ah, 0x02
-	mov al, dh
-	mov cl, 0x02
-	mov ch, 0x00
-	mov dh, 0x00
-	int 0x13
-	jc error
-	pop dx
-	cmp al, dh
-	jne error
-	popa
-	ret
-error:
-	mov si, de
-	call print
-	jmp $
-	ret
-
+%include "biosutil.inc"
 msg: db 'loading kernel on sector 2', 0
-de: db'DISK READ ERROR IN 0:0:2', 0
 
 times 510-($-$$) db 0
 db 0x55,0xaa
