@@ -38,9 +38,12 @@ main:
 	mov es,ax
 	mov ss,ax
 	mov gs,ax
-	mov byte [gs:0xa0],'3'
-	mov byte [gs:0xa2],'2'
-	mov byte [gs:0xa4],'m'
-	mov byte [gs:0xa6],'o'
-	mov byte [gs:0xa8],'d'
-	jmp $
+	mov esp, 0x900
+	
+	call cls
+	hlt
+
+	
+	
+	
+%include "src/32bitutil.inc"
