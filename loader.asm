@@ -1,6 +1,7 @@
 [ORG 0x7c00]
 
 
+
 mov ah, 0x00
 mov al, 0x03
 int 0x10
@@ -8,13 +9,17 @@ int 0x10
 mov si, msg
 call print
 
-mov dh, 1
+mov ah, 0x0e
+mov al, 0x0a
+int 0x10
+mov al, 0x0d
+int 0x10
+
+mov dh, 0x01
+mov bx, 0x9000; es:bx=0x09000
 call disk
 
-mov si, 0x8000
-call print
-
-jmp $
+jmp 0x9000
 
 
 print:
@@ -36,9 +41,6 @@ disk:
 	pusha
 	push dx
 	
-	mov cx, 0x8000
-	mov es, cx
-	mov bx, 0
 	mov ah, 0x02
 	mov al, dh
 	mov cl, 0x02
