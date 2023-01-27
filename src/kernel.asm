@@ -16,34 +16,31 @@ lgdt_value:
 	
 SELECTOR_CODE	equ	0x0001<<3
 SELECTOR_DATA	equ	0x0002<<3
-SELECTOR_VIDEO	equ	0x0003<<3
 
 protect_mode:
+	cli
 	lgdt [lgdt_value]
 	in al, 0x92
 	or al,0000_0010b
 	out 0x92, al
-	cli
 	mov eax, cr0
 	or eax, 1
 	mov cr0, eax
-	;jmp $
 	jmp DWORD SELECTOR_CODE:main
 	
 [bits 32]
 
 main:
-	mov ax,SELECTOR_DATA
-	mov ds,ax
-	mov es,ax
-	mov ss,ax
-	mov gs,ax
-	mov esp, 0x900
-	
+	mov ax, SELECTOR_DATA
+	mov ds, ax
+	mov byte [ds:0], 'A'
+	mov eax, 10
+	mov ebx, 10
+	call mov_cursor
 	call cls
 	hlt
 
 	
 	
-	
 %include "src/32bitutil.inc"
+msg: db 'this is a hello world in 32-bit protect mode uses printf func', 0

@@ -6,18 +6,12 @@ mov ah, 0x00
 mov al, 0x03
 int 0x10
 
-mov si, msg
-call print
 
 
 mov dh, 0x01 ;sector num
 mov cl, 0x02 ;sector offset
 mov bx, 0x900; buffer ptr
 call disk
-
-mov si, ok
-call print
-call printnl
 
 jmp 0x900
 

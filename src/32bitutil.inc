@@ -1,24 +1,54 @@
 cls:
-	mov eax, 0x00000000
+	pushad
+	mov eax, 0
 clear_screen:
-	mov byte [gs:eax], 0x00
+	mov byte [ds:eax], ' '
 	add eax, 2
 	cmp eax, 0x00000f9f
 	jge fin
 	jmp clear_screen
 fin:
-	mov bx, 0
-    mov dx, 0x3d4
-    mov al, 0x0e
-    out dx, al
-    mov dx, 0x3d5
-    mov al, bh
-    out dx, al
-    mov dx, 0x3d4
-    mov al, 0x0f
-    out dx, al
-    mov dx, 0x3d5
-    mov al, bl
-    out dx, al
-	mov esp, 0x900
+	xor eax, eax
+	xor ebx, ebx
+	call mov_cursor
+	popad
+	ret
+	
+mov_cursor: ;bx=x ax=y
+	pushad
+	mov dl, 80
+	mul dl
+	add bx, ax
+	mov dx, 0x03D4
+	mov al, 0x0F
+	out dx, al
+	
+	inc dl
+	mov al, bl
+	out dx, al
+	
+	dec dl
+	mov al, 0x0E
+	out dx, al
+	
+	inc dl
+	mov al, bh
+	out dx, al
+	popad
+	ret
+	
+	
+putchar: ;al=char bx=pos
+	mov byte [bx+0xb800], al
+	ret
+	
+printf: ;si=char *str bx=pos
+	mov al, byte [ds:si]
+	cmp al, 0
+	je fini
+	mov byte [bx], al
+	add si, 2
+	add bx, 2
+	jmp printf
+fini:
 	ret
