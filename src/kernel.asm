@@ -15,7 +15,7 @@ lgdt_value:
 	dd gdt
 	
 SELECTOR_CODE	equ	0x0001<<3
-SELECTOR_DATA	equ	0x0002<<3
+SELECTOR_VIDEO	equ	0x0002<<3
 
 protect_mode:
 	cli
@@ -29,18 +29,28 @@ protect_mode:
 	jmp DWORD SELECTOR_CODE:main
 	
 [bits 32]
-
+; segments:
+	;code segment:cs(auto do not mod)
+	;data segment:ds(suto 0x0000)
+	;video segment:gs(offset 0x8B000)
 main:
-	mov ax, SELECTOR_DATA
-	mov ds, ax
-	mov byte [ds:0], 'A'
-	mov eax, 10
-	mov ebx, 10
-	call mov_cursor
-	call cls
+	
+	mov ax, SELECTOR_VIDEO
+	mov gs, ax
+	
+	call println
+	mov bx, 0xa0
+	mov si, msg
+	call printf
+	call println
+
+	intt:
+		call getchar
+		jmp intt
 	hlt
 
 	
 	
 %include "src/32bitutil.inc"
-msg: db 'this is a hello world in 32-bit protect mode uses printf func', 0
+%include "src/tty.inc"
+msg: db 'gdt loaded', 0

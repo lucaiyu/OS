@@ -6,7 +6,8 @@ mov ah, 0x00
 mov al, 0x03
 int 0x10
 
-
+mov si, msg
+call print
 
 mov dh, 0x01 ;sector num
 mov cl, 0x02 ;sector offset
@@ -17,8 +18,7 @@ jmp 0x900
 
 
 %include "src/16bitutil.inc"
-msg: db 'loading kernel on sector 2...', 0
-ok: db 'OK', 0
+msg: db 'loading system...', 0
 
 times 510-($-$$) db 0
 db 0x55,0xaa
