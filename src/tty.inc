@@ -6,7 +6,10 @@ tty:
 		; keyborad int scan(sync)
 		mov ah, 0x00
 		int 0x16
-		cmp al, 0x0d
+		cmp ah, 0x0e
+		je backspace
+		; if is enter -> jmp to command analyzer
+		cmp ah, 0x1c
 		je analyze
 		; if buffer is full -> jmp
 		cmp bx, 255
@@ -28,23 +31,67 @@ tty:
 		call printnl
 		cmp byte [combuffer], 0x00
 		je tty
-		mov si, combuffer
-		call print
-		mov bx, 0
+
+		clearcom:           
+			mov    si,0
+           	mov    cx,5
+			findclearcom:
+				mov ah, [comclear+si]
+           		mov al, [combuffer+si]
+           		cmp ah, al
+           		jne comerror
+           		inc si
+           		loop findclearcom
+           		jmp clear  
+        comerror:
+        	mov si, comerr
+			call print
+			jmp comanalyzefin
+		comanalyzefin:
+			call clearbuf
+			call printnl
+			jmp tty
+
+	clear:
+		pusha
+		mov ah, 0x00
+		mov al, 0x03
+		int 0x10
+		popa
 		call clearbuf
-		call printnl
 		jmp tty
 
 	clearbuf:
-		mov byte [combuffer+bx], 0x00
-		inc bx
-		cmp bx, 255
-		jge clearfin
-		jmp clearbuf
+		mov bx, 0
+		bufclear:
+			mov byte [combuffer+bx], 0x00
+			inc bx
+			cmp bx, 255
+			jge clearfin
+			jmp bufclear
 		clearfin:
 			ret
 
 
+	backspace:
+		pusha
+		mov ah, 0x03
+		mov bx, 0x00
+		int 0x10
+		cmp dl, 0x04
+		jbe scan
+		dec dl
+		mov ah, 0x02
+		int 0x10
+		mov al, ' '
+		mov ah, 0x0a
+		mov bh, 0
+		mov cx, 1
+		int 0x10
+		popa
+		dec bx
+		mov byte [combuffer+bx], 0x00
+		jmp scan
 
 
 
@@ -53,12 +100,8 @@ tty:
 
 
 
-
-
-
-
-
-ttysym: db 'TTY$', 0
-comerr: db 'command not found', 0
-debug: db 'buffer cleared'
-combuffer: times 255 db 0
+ttysym db 'TTY$', 0
+comerr db 'command not found', 0
+comclear db 'clear'
+comecho db 'echo '
+combuffer times 255 db 0
