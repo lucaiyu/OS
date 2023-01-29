@@ -8,16 +8,17 @@ int 0x10
 
 mov si, msg
 call print
+call printnl
 
 mov dh, 0x01 ;sector num
 mov cl, 0x02 ;sector offset
-mov bx, 0x900; buffer ptr
+mov bx, 0x8000; buffer ptr
 call disk
 
-jmp 0x900
+jmp 0x8000
 
 
-%include "src/16bitutil.inc"
+%include "src/io.inc"
 msg: db 'loading system...', 0
 
 times 510-($-$$) db 0
