@@ -1,0 +1,9 @@
+dw 0x0001
+dw 0x0007
+dw 0x0001
+db 'hi     bin'
+dw 0x0002
+dw 0x0008
+dw 0x0001
+db 'hello  txt'
+times 512-($-$$) db 0

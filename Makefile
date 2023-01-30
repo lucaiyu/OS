@@ -3,9 +3,10 @@ run: clean kernel.img
 	-bochs -f bochsrc.bxrc
 
 
-kernel.img: build/ build/loader.bin build/kernel.bin
+kernel.img: build/ build/loader.bin build/kernel.bin build/fs.bin
 	-cp build/loader.bin kernel.img
 	-cat build/kernel.bin >> kernel.img
+	-cat build/fs.bin >> kernel.img
 
 
 build/loader.bin: src/loader.asm
@@ -14,6 +15,9 @@ build/loader.bin: src/loader.asm
 build/kernel.bin: src/kernel.asm
 	nasm -fbin src/kernel.asm -o build/kernel.bin
 
+build/fs.bin: src/fshead.bin.asm
+	nasm -fbin src/fshead.bin.asm -o build/fs.bin
+
 build/:
 	mkdir build
 
@@ -21,3 +25,8 @@ build/:
 .PHONY: clean
 clean:
 	-rm -fr build/ kernel.img
+
+
+.PHONY: dbg
+dbg: clean kernel.img
+	-bochsdbg -f bochsrc.bxrc

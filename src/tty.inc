@@ -39,11 +39,30 @@ tty:
 				mov ah, [comclear+si]
            		mov al, [combuffer+si]
            		cmp ah, al
-           		jne comerror
+           		jne lscom
            		inc si
            		loop findclearcom
            		jmp clear  
+
+
+
+        lscom:           
+			mov    si,0
+           	mov    cx,2
+			findlscom:
+				mov ah, [comls+si]
+           		mov al, [combuffer+si]
+           		cmp ah, al
+           		jne comerror
+           		inc si
+           		loop findlscom
+           		call listfile
+           		jmp comanalyzefin
+
+
         comerror:
+        	mov si, combuffer
+        	call print
         	mov si, comerr
 			call print
 			jmp comanalyzefin
@@ -100,8 +119,9 @@ tty:
 
 
 
-ttysym db 'TTY$', 0
-comerr db 'command not found', 0
+ttysym db 'shell$', 0
+comerr db ': command not found', 0
 comclear db 'clear'
 comecho db 'echo '
+comls db 'ls'
 combuffer times 255 db 0
