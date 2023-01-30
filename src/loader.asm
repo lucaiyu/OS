@@ -14,13 +14,13 @@ call printnl
 mov dh, 0x08 ;sector num
 mov cl, 0x02 ;sector offset
 mov bx, 0x8000; buffer ptr
-call disk
+call rdisk
 
 ; load fs
 mov dh, 0x01
 mov cl, 0x0a
 mov bx, 0x9000
-call disk
+call rdisk
 
 
 jmp 0x8000

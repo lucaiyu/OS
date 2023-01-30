@@ -2,12 +2,15 @@
 [bits 16]
 main:
 	call printnl
+	call testwrite
+	mov si, testfile
+	call createfile
 	call tty
-	;call listfile
 	hlt
 
 	
 	
+testfile db 'kernel img'
 %include "src/io.inc"
 %include "src/tty.inc"
 %include "src/fs.inc"

@@ -52,5 +52,50 @@ printfilename: ;di=char *str
 
 
 
+testwrite:
+	mov dword [0x9000], 0xffffffff
+	call wdisk
+	ret
+
+createfile: ;si=char *filename
+	pusha
+	mov bx, 0x9000
+	mov cx, 0
+	findend:
+		cmp word [bx], 0x0000
+		je wintofs
+		add bx, 16
+		inc cx
+		cmp bx, 0x9000+32
+		jge createerr
+		jmp findend
+	createerr:
+		pusha
+		mov si, toucherrmsg
+		call print
+		call printnl
+		popa
+		popa
+		ret
+	wintofs:
+		pushad
+		inc cx
+		mov word [bx], cx
+		mov word [bx+2], 0x0000
+		mov word [bx+4], 0x0000
+		mov ax, 0
+		add bx, 6
+		strcpy:
+			
+		popad
+		mov dh, 0x01
+		mov cl, 0x0a
+		mov bx, 0x9000
+		call wdisk
+		popa
+		ret
+
+
 
 spaces db '  ', 0
+toucherrmsg db 'unable to touch file: filesystem table is full', 0
