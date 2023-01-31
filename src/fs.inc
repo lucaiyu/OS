@@ -79,6 +79,7 @@ createfile: ;si=char *filename
 		ret
 	wintofs:
 		pushad
+		hlt
 		inc cx
 		mov word [bx], cx
 		mov word [bx+2], 0x0000
@@ -86,7 +87,16 @@ createfile: ;si=char *filename
 		mov ax, 0
 		add bx, 6
 		strcpy:
-			
+			mov dl, [si]
+			mov [bx], dl
+			inc bx
+			inc si
+			inc ax
+			cmp ax, 10
+			jge cpyend
+			jmp strcpy
+		cpyend:
+			nop
 		popad
 		mov dh, 0x01
 		mov cl, 0x0a

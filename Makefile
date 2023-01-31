@@ -15,8 +15,8 @@ build/loader.bin: src/loader.asm
 build/kernel.bin: src/kernel.asm
 	nasm -fbin src/kernel.asm -o build/kernel.bin
 
-build/fs.bin: src/fshead.bin.asm
-	nasm -fbin src/fshead.bin.asm -o build/fs.bin
+build/fs.bin: src/fs.bin.asm
+	nasm -fbin src/fs.bin.asm -o build/fs.bin
 
 build/:
 	mkdir build

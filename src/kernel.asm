@@ -2,7 +2,7 @@
 [bits 16]
 main:
 	call printnl
-	call testwrite
+	;call testwrite
 	mov si, testfile
 	call createfile
 	call tty
