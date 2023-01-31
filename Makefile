@@ -1,6 +1,6 @@
 .PHONY: run
 run: clean kernel.img
-	-bochs -f bochsrc.bxrc
+	-bochs -f test.cfg
 
 
 kernel.img: build/ build/loader.bin build/kernel.bin build/fs.bin
@@ -27,6 +27,6 @@ clean:
 	-rm -fr build/ kernel.img
 
 
-.PHONY: dbg
-dbg: clean kernel.img
-	-bochsdbg -f bochsrc.bxrc
+.PHONY: start
+start:
+	-bochs -f test.cfg

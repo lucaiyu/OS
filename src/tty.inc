@@ -32,6 +32,19 @@ tty:
 		cmp byte [combuffer], 0x00
 		je tty
 
+		touchcom:
+    		mov si, 0
+    		mov cx, 6
+    		findtouchcom:
+    			mov ah, [comtouch+si]
+    			mov al, [combuffer+si]
+    			cmp ah, al
+    			jne clearcom
+    			inc si
+    			loop findtouchcom
+    			call touch
+    			jmp comanalyzefin
+
 		clearcom:           
 			mov    si,0
            	mov    cx,5
@@ -97,8 +110,8 @@ tty:
 		mov ah, 0x03
 		mov bx, 0x00
 		int 0x10
-		cmp dl, 0x04
-		jbe scan
+		cmp dl, 0x06
+		jbe return
 		dec dl
 		mov ah, 0x02
 		int 0x10
@@ -107,12 +120,21 @@ tty:
 		mov bh, 0
 		mov cx, 1
 		int 0x10
-		popa
 		dec bx
 		mov byte [combuffer+bx], 0x00
-		jmp scan
+		jmp return
+		return:
+			popa
+			jmp scan
 
 
+	touch:
+		pushad
+		mov si, combuffer
+		add si, 6
+		call createfile
+		popad
+		ret
 
 
 
@@ -124,4 +146,5 @@ comerr db ': command not found', 0
 comclear db 'clear'
 comecho db 'echo '
 comls db 'ls'
+comtouch db 'touch '
 combuffer times 255 db 0

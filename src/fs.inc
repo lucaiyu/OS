@@ -25,37 +25,31 @@ printfilename: ;di=char *str
 		cmp al, 0
 		je firstfin
 		int 0x10
-		cmp bx, 0x07
+		cmp bx, 0x0a
 		jge firstfin
 		jmp first
 
 	firstfin:
-		mov al, '.'
-		int 0x10
-		mov bx, 0x07
-
-	next:
-		mov al, byte [di+bx]
-		inc bx
-		cmp al, ' '
-		je nextfin
-		cmp al, 0x00
-		je nextfin
-		int 0x10
-		cmp bx, 0x0a
-		jge nextfin
-		jmp next
-
-	nextfin:
 		popa
 		ret
 
+	; next:
+	; 	mov al, byte [di+bx]
+	; 	inc bx
+	; 	cmp al, ' '
+	; 	je nextfin
+	; 	cmp al, 0x00
+	; 	je nextfin
+	; 	int 0x10
+	; 	cmp bx, 0x0a
+	; 	jge nextfin
+	; 	jmp next
+
+	; nextfin:
+	; 	popa
+	; 	ret
 
 
-testwrite:
-	mov dword [0x9000], 0xffffffff
-	call wdisk
-	ret
 
 createfile: ;si=char *filename
 	pusha
@@ -66,7 +60,7 @@ createfile: ;si=char *filename
 		je wintofs
 		add bx, 16
 		inc cx
-		cmp bx, 0x9000+32
+		cmp bx, 0x9000+240
 		jge createerr
 		jmp findend
 	createerr:
@@ -78,8 +72,7 @@ createfile: ;si=char *filename
 		popa
 		ret
 	wintofs:
-		pushad
-		hlt
+		pusha
 		inc cx
 		mov word [bx], cx
 		mov word [bx+2], 0x0000
@@ -97,7 +90,7 @@ createfile: ;si=char *filename
 			jmp strcpy
 		cpyend:
 			nop
-		popad
+		popa
 		mov dh, 0x01
 		mov cl, 0x0a
 		mov bx, 0x9000
