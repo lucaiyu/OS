@@ -3,7 +3,7 @@
 main:
 	call printnl
 	call tty
-	hlt
+	call shutdown
 
 	
 %include "src/io.inc"

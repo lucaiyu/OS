@@ -1,6 +1,6 @@
 .PHONY: run
 run: clean kernel.img
-	-bochs -f test.cfg
+	-qemu-system-i386 kernel.img
 
 
 kernel.img: build/ build/loader.bin build/kernel.bin build/fs.bin
@@ -29,4 +29,4 @@ clean:
 
 .PHONY: start
 start:
-	-bochs -f test.cfg
+	-qemu-system-i386 kernel.img

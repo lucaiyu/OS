@@ -34,7 +34,7 @@ tty:
 
 		touchcom:
     		mov si, 0
-    		mov cx, 6
+    		mov cx, 5
     		findtouchcom:
     			mov ah, [comtouch+si]
     			mov al, [combuffer+si]
@@ -47,7 +47,7 @@ tty:
 
 		clearcom:           
 			mov    si,0
-           	mov    cx,5
+           	mov    cx,6
 			findclearcom:
 				mov ah, [comclear+si]
            		mov al, [combuffer+si]
@@ -55,21 +55,34 @@ tty:
            		jne lscom
            		inc si
            		loop findclearcom
-           		jmp clear  
+           		jmp clear
 
 
 
         lscom:           
 			mov    si,0
-           	mov    cx,2
+           	mov    cx,3
 			findlscom:
 				mov ah, [comls+si]
            		mov al, [combuffer+si]
            		cmp ah, al
-           		jne comerror
+           		jne haltcom
            		inc si
            		loop findlscom
            		call listfile
+           		jmp comanalyzefin
+
+        haltcom:           
+			mov    si,0
+           	mov    cx,5
+			findhaltcom:
+				mov ah, [comhalt+si]
+           		mov al, [combuffer+si]
+           		cmp ah, al
+           		jne comerror
+           		inc si
+           		loop findhaltcom
+           		call shutdown
            		jmp comanalyzefin
 
 
@@ -129,12 +142,39 @@ tty:
 
 
 	touch:
-		pushad
+		pusha
 		mov si, combuffer
 		add si, 6
+		mov cx, 10
+		push si
+		checkname:
+			cmp byte [si], 0x20
+			je illegalname
+			cmp byte [si], 0x2f
+			je illegalname
+			inc si
+			loop checkname
+		pop si
 		call createfile
-		popad
+		popa
 		ret
+		illegalname:
+			pop si
+			mov si, toucherr
+			call print
+			popa
+			ret
+
+	shutdown:
+  		mov ax, 0x1000
+  		mov ax, ss
+  		mov sp, 0xf000
+  		mov ax, 0x5307
+  		mov bx, 0x0001
+  		mov cx, 0x0003
+  		int 0x15
+ 
+  		ret
 
 
 
@@ -143,8 +183,11 @@ tty:
 
 ttysym db 'shell$', 0
 comerr db ': command not found', 0
-comclear db 'clear'
+comclear db 'clear', 0
 comecho db 'echo '
-comls db 'ls'
+comls db 'ls', 0
 comtouch db 'touch '
+comhalt db 'halt', 0
+
+toucherr db 'Illegal filename', 0
 combuffer times 255 db 0
