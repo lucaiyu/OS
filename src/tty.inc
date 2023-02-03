@@ -79,10 +79,24 @@ tty:
 				mov ah, [comhalt+si]
            		mov al, [combuffer+si]
            		cmp ah, al
-           		jne comerror
+           		jne rebootcom
            		inc si
            		loop findhaltcom
            		call shutdown
+           		jmp comanalyzefin
+
+
+        rebootcom:           
+			mov    si,0
+           	mov    cx,5
+			findrebootcom:
+				mov ah, [comreboot+si]
+           		mov al, [combuffer+si]
+           		cmp ah, al
+           		jne comerror
+           		inc si
+           		loop findrebootcom
+           		call reboot
            		jmp comanalyzefin
 
 
@@ -173,8 +187,9 @@ tty:
   		mov bx, 0x0001
   		mov cx, 0x0003
   		int 0x15
- 
-  		ret
+
+  	reboot:
+  		int 0x19
 
 
 
@@ -188,6 +203,7 @@ comecho db 'echo '
 comls db 'ls', 0
 comtouch db 'touch '
 comhalt db 'halt', 0
+comreboot db 'reboot', 0
 
 toucherr db 'Illegal filename', 0
 combuffer times 255 db 0
