@@ -1,12 +1,11 @@
 .PHONY: run
 run: clean kernel.img
-	-qemu-system-i386 kernel.img
+	-bochs -f bochsrc.bxrc
 
 
-kernel.img: build/ build/loader.bin build/kernel.bin build/fs.bin
+kernel.img: build/ build/loader.bin build/kernel.bin
 	-cp build/loader.bin kernel.img
 	-cat build/kernel.bin >> kernel.img
-	-cat build/fs.bin >> kernel.img
 
 
 build/loader.bin: src/loader.asm
@@ -15,9 +14,6 @@ build/loader.bin: src/loader.asm
 build/kernel.bin: src/kernel.asm
 	nasm -fbin src/kernel.asm -o build/kernel.bin
 
-build/fs.bin: src/fs.bin.asm
-	nasm -fbin src/fs.bin.asm -o build/fs.bin
-
 build/:
 	mkdir build
 
@@ -25,8 +21,3 @@ build/:
 .PHONY: clean
 clean:
 	-rm -fr build/ kernel.img
-
-
-.PHONY: start
-start:
-	-qemu-system-i386 kernel.img

@@ -24,7 +24,7 @@ printnl: ;void
 	popa
 	ret
 	
-rdisk:
+disk:
 	pusha
 	push dx
 	
@@ -34,38 +34,16 @@ rdisk:
 	mov ch, 0x00
 	mov dh, 0x00
 	int 0x13
-	jc rerror
+	jc error
 	pop dx
 	cmp al, dh
-	jne rerror
+	jne error
 	popa
 	ret
-rerror:
+error:
 	mov si, de
 	call print
 	jmp $
 	ret
 	
-wdisk:
-	pusha
-	push dx
-	
-	mov ah, 0x03
-	mov al, dh
-	mov cl, cl
-	mov ch, 0x00
-	mov dh, 0x00
-	int 0x13
-	jc werror
-	pop dx
-	cmp al, dh
-	jne werror
-	popa
-	ret
-werror:
-	mov si, wde
-	call print
-	jmp $
-	ret
-de: db 'DISK READ ERROR IN CHS:UNKNOW', 0
-wde: db 'DISK WRITE ERROR IN CHS:UNKNOW', 0
+de: db'DISK READ ERROR IN CHS:002', 0
