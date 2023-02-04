@@ -8,23 +8,26 @@ int 0x10
 
 mov si, msg
 call print
-
-
-mov dh, 0x01 ;sector num
-mov cl, 0x02 ;sector offset
-mov bx, 0x900; buffer ptr
-call disk
-
-mov si, ok
-call print
 call printnl
 
-jmp 0x900
+; load kernel
+mov dh, 0x08 ;sector num
+mov cl, 0x02 ;sector offset
+mov bx, 0x8000; buffer ptr
+call rdisk
+
+; load fs
+mov dh, 0x01
+mov cl, 0x0a
+mov bx, 0x9000
+call rdisk
 
 
-%include "src/16bitutil.inc"
-msg: db 'loading kernel on sector 2...', 0
-ok: db 'OK', 0
+jmp 0x8000
+
+
+%include "src/io.inc"
+msg: db 'loading system...', 0
 
 times 510-($-$$) db 0
 db 0x55,0xaa
