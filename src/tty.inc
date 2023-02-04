@@ -120,6 +120,7 @@ tty:
 
 	backspace:
 		pusha
+		push bx
 		mov ah, 0x03
 		mov bx, 0x00
 		int 0x10
@@ -133,10 +134,13 @@ tty:
 		mov bh, 0
 		mov cx, 1
 		int 0x10
-		dec bx
-		mov byte [combuffer+bx], 0x00
-		jmp return
+		pop bx
+		mov byte [combuffer+bx-1], 0x00
+		popa
+		sub bx, 1
+		jmp scan
 		return:
+			pop bx
 			popa
 			jmp scan
 

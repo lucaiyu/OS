@@ -17,7 +17,7 @@ mov bx, 0x8000; buffer ptr
 call rdisk
 
 ; load fs
-mov dh, 0x01
+mov dh, 0x08
 mov cl, 0x0a
 mov bx, 0x9000
 call rdisk

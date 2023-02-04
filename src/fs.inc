@@ -1,3 +1,20 @@
+; a simple filesystem
+; sector 1 mbr
+; sector 2-9 kernel code
+; sector 10-17 fat
+; sector 18-2880 file data
+; 
+; max files: 1024
+; max file size: 10MB(20sectors)
+; 
+; fat struct
+; size: 1xdword -> 4bytes
+; struct fat{
+; 	word id
+;	word begin_sector
+; };
+
+
 listfile:
 	pusha
 	mov di, 0x9006
@@ -33,22 +50,6 @@ printfilename: ;di=char *str
 		popa
 		ret
 
-	; next:
-	; 	mov al, byte [di+bx]
-	; 	inc bx
-	; 	cmp al, ' '
-	; 	je nextfin
-	; 	cmp al, 0x00
-	; 	je nextfin
-	; 	int 0x10
-	; 	cmp bx, 0x0a
-	; 	jge nextfin
-	; 	jmp next
-
-	; nextfin:
-	; 	popa
-	; 	ret
-
 
 
 createfile: ;si=char *filename
@@ -58,39 +59,23 @@ createfile: ;si=char *filename
 	findend:
 		cmp word [bx], 0x0000
 		je wintofs
-		add bx, 16
+		add bx, 4
 		inc cx
-		cmp bx, 0x9000+240
+		cmp bx, 0x9000+4096 ;256 files max
 		jge createerr
 		jmp findend
 	createerr:
-		pusha
 		mov si, toucherrmsg
 		call print
 		call printnl
 		popa
-		popa
 		ret
 	wintofs:
-		pusha
 		inc cx
-		mov word [bx], cx
-		mov word [bx+2], 0x0000
-		mov word [bx+4], 0x0000
-		mov ax, 0
-		add bx, 6
-		strcpy:
-			mov dl, [si]
-			mov [bx], dl
-			inc bx
-			inc si
-			inc ax
-			cmp ax, 10
-			jge cpyend
-			jmp strcpy
-		cpyend:
-			nop
-		popa
+		mov dword [bx], 0xffffffff
+		mov ax, 20
+		mul cx
+		mov dword [bx+4], 0xffffffff
 		mov dh, 0x01
 		mov cl, 0x0a
 		mov bx, 0x9000
