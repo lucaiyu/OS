@@ -1,20 +1,3 @@
-; a simple filesystem
-; sector 1 mbr
-; sector 2-9 kernel code
-; sector 10-17 fat
-; sector 18-2880 file data
-; 
-; max files: 1024
-; max file size: 10MB(20sectors)
-; 
-; fat struct
-; size: 1xdword -> 4bytes
-; struct fat{
-; 	word id
-;	word begin_sector
-; };
-
-
 listfile:
 	pusha
 	mov di, 0x9006
@@ -59,23 +42,42 @@ createfile: ;si=char *filename
 	findend:
 		cmp word [bx], 0x0000
 		je wintofs
-		add bx, 4
+		add bx, 16
 		inc cx
-		cmp bx, 0x9000+4096 ;256 files max
+		cmp bx, 0x9000+4096
 		jge createerr
 		jmp findend
 	createerr:
+		pusha
 		mov si, toucherrmsg
 		call print
 		call printnl
 		popa
+		popa
 		ret
 	wintofs:
+		pusha
 		inc cx
-		mov dword [bx], 0xffffffff
+		mov word [bx], cx
 		mov ax, 20
 		mul cx
-		mov dword [bx+4], 0xffffffff
+		mov word [bx+2], ax
+		add ax, 20
+		mov word [bx+4], ax
+		mov ax, 0
+		add bx, 6
+		strcpy:
+			mov dl, [si]
+			mov [bx], dl
+			inc bx
+			inc si
+			inc ax
+			cmp ax, 10
+			jge cpyend
+			jmp strcpy
+		cpyend:
+			nop
+		popa
 		mov dh, 0x01
 		mov cl, 0x0a
 		mov bx, 0x9000

@@ -67,5 +67,5 @@ werror:
 	call print
 	jmp $
 	ret
-de: db 'DISK READ ERROR IN CHS:UNKNOW', 0
-wde: db 'DISK WRITE ERROR IN CHS:UNKNOW', 0
+de: db 'DISK READ ERROR', 0
+wde: db 'DISK WRITE ERROR', 0

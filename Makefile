@@ -1,6 +1,6 @@
 .PHONY: run
 run: clean kernel.img
-	-qemu-system-x86_64 kernel.img
+	-qemu-system-x86_64 -fda kernel.img
 
 
 kernel.img: build/ build/loader.bin build/kernel.bin build/fs.bin
