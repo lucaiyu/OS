@@ -34,7 +34,7 @@ build/:
 
 .PHONY: clean
 clean:
-	-rm -fr build/ kernel.img
+	-rm -fr build/ kernel.img data.img
 
 
 .PHONY: dbg
