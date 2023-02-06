@@ -33,6 +33,7 @@ rdisk:
 	mov cl, cl
 	mov ch, 0x00
 	mov dh, 0x00
+	mov dl, 0x01
 	int 0x13
 	jc rerror
 	pop dx
@@ -55,6 +56,7 @@ wdisk:
 	mov cl, cl
 	mov ch, 0x00
 	mov dh, 0x00
+	mov dl, 0x01
 	int 0x13
 	jc werror
 	pop dx
