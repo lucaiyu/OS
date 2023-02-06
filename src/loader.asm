@@ -1,7 +1,5 @@
 [ORG 0x7c00]
 [bits 16]
-
-
 mov ah, 0x00
 mov al, 0x03
 int 0x10
@@ -11,15 +9,9 @@ call print
 call printnl
 
 ; load kernel
-mov dh, 0x08 ;sector num
+mov al, 0x08 ;sector num
 mov cl, 0x02 ;sector offset
 mov bx, 0x8000; buffer ptr
-call rdisk
-
-; load fs
-mov dh, 0x08
-mov cl, 0x0a
-mov bx, 0x9000
 call rdisk
 
 

@@ -24,19 +24,14 @@ printnl: ;void
 	popa
 	ret
 	
-rdisk:
+rdisk: ; al=secnum, cl=sector, ch=cylinder, dh=header
 	pusha
-	push dx
+	mov bl, al
 	
 	mov ah, 0x02
-	mov al, dh
-	mov cl, cl
-	mov ch, 0x00
-	mov dh, 0x00
 	int 0x13
 	jc rerror
-	pop dx
-	cmp al, dh
+	cmp al, bl
 	jne rerror
 	popa
 	ret
@@ -46,19 +41,14 @@ rerror:
 	jmp $
 	ret
 	
-wdisk:
+wdisk: ; al=secnum, cl=sector, ch=cylinder, dh=header
 	pusha
-	push dx
+	mov bl, al
 	
 	mov ah, 0x03
-	mov al, dh
-	mov cl, cl
-	mov ch, 0x00
-	mov dh, 0x00
 	int 0x13
 	jc werror
-	pop dx
-	cmp al, dh
+	cmp al, bl
 	jne werror
 	popa
 	ret
@@ -69,3 +59,11 @@ werror:
 	ret
 de: db 'DISK READ ERROR', 0
 wde: db 'DISK WRITE ERROR', 0
+
+
+rtest:
+	mov bx, 0x1000
+	mov dh, 19
+	mov cl, 0x01
+	call rdisk
+	call rtest

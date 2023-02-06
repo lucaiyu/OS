@@ -3,9 +3,10 @@
 main:
 	call printnl
 	call tty
+	jmp $
 
 	
 %include "src/io.inc"
 %include "src/tty.inc"
-%include "src/fs.inc"
+
 times 4096-($-$$) db 0
