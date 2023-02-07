@@ -1,32 +1,22 @@
 .PHONY: run
-run: clean kernel.img data.img
-	-qemu-system-x86_64 -fda kernel.img -fdb data.img
+run: clean kernel.img
+	-qemu-system-i386 -fda kernel.img
 
 
-kernel.img: build/ build/loader.bin build/kernel.bin
-	-cp build/loader.bin kernel.img
-	-cat build/kernel.bin >> kernel.img
-
-data.img: build/ build/data.bin build/fat12.bin build/datambr.bin
-	-cp build/datambr.bin data.img
-	-cat build/fat12.bin >> data.img
-	-cat build/data.bin >> data.img
+kernel.img: build/ build/bootsect.bin build/setup.bin build/head.bin
+	-cat build/bootsect.bin > kernel.img
+	-cat build/setup.bin >> kernel.img
+	-cat build/head.bin >> kernel.img
 
 
-build/loader.bin: src/loader.asm
-	nasm -fbin src/loader.asm -o build/loader.bin	
-	
-build/kernel.bin: src/kernel.asm
-	nasm -fbin src/kernel.asm -o build/kernel.bin
+build/bootsect.bin: src/boot/bootsect.asm
+	nasm -fbin src/boot/bootsect.asm -o build/bootsect.bin
 
-build/fat12.bin: src/fat12.bin.asm
-	nasm -fbin src/fat12.bin.asm -o build/fat12.bin
+build/setup.bin: src/boot/setup.asm
+	nasm -fbin src/boot/setup.asm -o build/setup.bin
 
-build/data.bin: src/data.bin.asm
-	nasm -fbin src/data.bin.asm -o build/data.bin
-
-build/datambr.bin: src/datambr.asm
-	nasm -fbin src/datambr.asm -o build/datambr.bin
+build/head.bin: src/boot/head.asm
+	nasm -fbin src/boot/head.asm -o build/head.bin
 
 build/:
 	mkdir build
@@ -34,9 +24,9 @@ build/:
 
 .PHONY: clean
 clean:
-	-rm -fr build/ kernel.img data.img
+	-rm -fr build/ kernel.img
 
 
 .PHONY: dbg
-dbg: clean kernel.img data.img
+dbg: clean kernel.img
 	-bochs -f test.cfg
