@@ -29,4 +29,4 @@ clean:
 
 .PHONY: dbg
 dbg: clean kernel.img
-	-bochsdbg -f bochsrc.bxrc
+	-bochs -f bochsrc.bxrc
