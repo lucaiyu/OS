@@ -67,7 +67,9 @@ go:
 	mov cl, SYSSector
 	call loadsystem
 
-	jmp $
+	;jmp $
+
+	jmp SETUPSEG:0
 
 
 
@@ -119,7 +121,22 @@ loadsetup:
 
 
 loadsystem:
-	
+	call readsector
+	mov ax, es
+	add ax, 0x0020
+	mov es, ax
+	inc cl
+	cmp cl, 18+1
+	jne loadsystem
+	mov cl, 1
+	inc dh
+	cmp dh, 1+1
+	jne loadsystem
+	mov dh, 0
+	inc ch
+	cmp ch, SYScylind+1
+	jne loadsystem
+	ret
 
 bootmsg db 'loading system...', 0
 movemsg db 'moved bootsect to 0x9000', 0
