@@ -98,7 +98,7 @@ readsector: ;ch=cylinder dh=header cl=sector
 	mov ah, 0x02
 	mov al, 1
 	mov bx, 0
-	mov dl, 0
+	mov dl, 0x80
 	int 0x13
 	jnc readsecc
 	mov si, rerrmsg

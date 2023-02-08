@@ -19,15 +19,18 @@ clean:
 	rm boot/setup.bin
 	rm boot/head.bin
 	rm boot/boot_setup.bin
+	rm kernel.img
 
 
 
 buildimg : boot/boot_setup.bin Makefile
 	cat  boot/boot_setup.bin > kernel.img
+	cp .null.img kernel.img
+	dd if=boot/boot_setup.bin of=kernel.img conv=notrunc
 
 
 run : clean buildimg
-	qemu-system-i386 -fda kernel.img
+	qemu-system-i386 -hda kernel.img
 
 dbg : clean buildimg
-	bochsdbg -f bochsrc.bxrc
+	bochs
