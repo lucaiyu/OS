@@ -6,6 +6,7 @@ main:
 	mov esi, initmsg
 	call printk
 
+
 	jmp $
 
 

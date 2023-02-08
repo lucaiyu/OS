@@ -1,5 +1,4 @@
 putchar: ;al=char c
-	xchg bx, bx
 	pushad
 	mov ebx, dword [0x90000]
 	and ebx, 0x000000FF
@@ -105,8 +104,11 @@ scoll:
 		ret
 
 
-printk: ; esi=char *str
-	pushad
+printk: ; esi=char *str use stack to pass all formats like printk("hello, %x; world, %x", foo, bar);
+;WARNING DO NOT PUSH STUFF NOT REFER TO "%x" NUMBERS IN STRING
+;WARNING YOU HAVE TO CLEAN UP STACK AFTER CALL
+	push ebp
+	mov ebp, esp
 	.interal_printk_loop
 	mov al, byte [esi]
 	; is end?
@@ -115,13 +117,23 @@ printk: ; esi=char *str
 	; is enter?
 	cmp al, 0x0d
 	je .interal_printk_nl
+	; is '%' format?
+	cmp al, '%'
+	je .interal_printk_format
 	call putchar
 	inc esi
 	jmp .interal_printk_loop
 
 	.interal_printk_fin:
-		popad
+		pop ebp
 		ret
+
+.interal_printk_format:
+	mov edx, [ebp+8]
+	call .interal_printk_hex2chr
+	add ebp, 4
+	inc esi
+	jmp .interal_printk_loop
 
 .interal_printk_nl:
 	pushad
@@ -149,3 +161,36 @@ printk: ; esi=char *str
 	popad
 	inc esi
 	jmp .interal_printk_loop
+
+.interal_printk_hex2chr: ;edx=data
+	pushad
+	mov cx, 0
+
+	.interal_printk_hex2chr_hex_loop:
+		cmp cx, 8
+		je .interal_printk_hex2chr_end
+
+		mov eax, edx
+		and eax, 0x0000000F
+		add al, 0x30
+		cmp al, 0x39
+		jle .interal_printk_hex2chr_hex_process
+		add al, 7
+
+		.interal_printk_hex2chr_hex_process:
+			mov bx, .field_printk_hex2chr_output_buffer+9
+			sub bx, cx
+			mov [bx], al
+			ror edx, 4
+
+			inc cx
+			jmp .interal_printk_hex2chr_hex_loop
+
+	.interal_printk_hex2chr_end:
+		mov esi, .field_printk_hex2chr_output_buffer
+		call printk
+		popad
+		ret
+
+
+.field_printk_hex2chr_output_buffer dd '0x00000000', 0
