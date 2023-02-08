@@ -1,5 +1,3 @@
-build/
-kernel.img
-data.img
-bx_enh_dbg.ini
+*.bin
+*.img
 bochsrc.bxrc

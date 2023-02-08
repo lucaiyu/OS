@@ -1,4 +1,4 @@
-%include "src/boot/config.inc"
+%include "boot/config.inc"
 
 INITSEG EQU DEF_INITSEG
 SYSSEG EQU DEF_SYSSEG
@@ -88,9 +88,9 @@ is_disk1:
 	int 0x10
 	
 
-	mov ah, 0x01
-	mov cx, 0x2607
-	int 0x10
+	; mov ah, 0x01
+	; mov cx, 0x2607
+	; int 0x10
 
 
 	cli ; WARNING AFTER THIS LINE BIOS INT WILL DIE!!!!!
@@ -123,14 +123,11 @@ is_disk1:
 
 	call set_8259A
 
-	; mov ax, 0x0001
-	; lmsw
 	mov eax, cr0
 	or eax, 0x1
 	mov cr0, eax
 
 
-	;jmp dword 1*8:inprotect+SETUPSEG*0x10
 
 	jmp dword 1*8:0
 
@@ -234,14 +231,5 @@ gdt:
 	dw 0x9200 ; R-W-x
 	dw 0x00c0
 
-
-[bits 32]
-; 32-bit test
-inprotect:
-	mov eax, 2*8
-	mov ds, eax
-	mov edi, 0xb8000+5*160
-	mov byte [edi], 'K'
-	jmp $
 
 times 2048-($-$$) db 0

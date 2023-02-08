@@ -1,4 +1,4 @@
-%include "src/boot/config.inc"
+%include "boot/config.inc"
 
 jmp entry
 

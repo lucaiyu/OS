@@ -1,4 +1,4 @@
-%include "src/boot/config.inc"
+%include "boot/config.inc"
 
 SETUPSEG equ DEF_SETUPSEG
 SYSSEG equ DEF_SYSSEG
@@ -17,8 +17,6 @@ len_floppy_area equ 0x400
 
 [bits 32]
 jmp entry
-
-times _tmp_floppy_area+len_floppy_area-($-$$) db 0 ;clear page and swap
 
 entry:
 	mov eax, 2*8 ; reset segment selector
@@ -59,21 +57,12 @@ newgdt:
 	mov cl, 0x0f
 	mov edi, 0xb8000+8*160
 
-	push 0
-	push 0
-	push 0
+	call setup_paging
+
 	push panic
-	push _main
-
-	jmp setup_paging
-
-
-_main:
-	mov esi, mainmsg
-	mov cl, 0x0f
-	mov edi, 0xb8000+9*160
-	call printt
+	jmp 1*8:main
 	jmp $
+
 
 
 setup_paging:
@@ -212,7 +201,7 @@ gdt_descr:
 
 pmsg db 'already in protect mode', 0
 intmsg db 'soft int ok', 0
-resetmsg db 'resetting GDT&IDT', 0
+resetmsg db 'reseting GDT&IDT', 0
 a20 db 'A20 line is open', 0
 mainmsg db 'kernel main loaded', 0
 panicmsg db 'KERNEL PANIC: kernel main die!', 0
@@ -224,3 +213,5 @@ _gdt: dq 0x0000000000000000 ; NULL SEGMENT r-w-x
       dq 0x00c0920000000fff ; DATA SEGmENT R-W-x
       dq 0x0000000000000000 ; RESERVED SEGMENT r-w-x
       times 252 dq 0
+
+%include "kernel/kernel.asm"

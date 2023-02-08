@@ -1,32 +1,33 @@
-.PHONY: run
-run: clean kernel.img
-	-qemu-system-i386 -fda kernel.img
+default :
+	make run
 
 
-kernel.img: build/ build/bootsect.bin build/setup.bin build/head.bin
-	-cat build/bootsect.bin > kernel.img
-	-cat build/setup.bin >> kernel.img
-	-cat build/head.bin >> kernel.img
+boot/bootsect.bin : boot/bootsect.asm boot/config.inc Makefile
+	nasm boot/bootsect.asm -o boot/bootsect.bin
 
+boot/setup.bin : boot/setup.asm boot/config.inc Makefile
+	nasm boot/setup.asm -o boot/setup.bin
 
-build/bootsect.bin: src/boot/bootsect.asm
-	nasm -fbin src/boot/bootsect.asm -o build/bootsect.bin
+boot/head.bin : boot/head.asm boot/config.inc Makefile
+	nasm boot/head.asm -o boot/head.bin
 
-build/setup.bin: src/boot/setup.asm
-	nasm -fbin src/boot/setup.asm -o build/setup.bin
+boot/boot_setup.bin : boot/bootsect.bin boot/setup.bin boot/head.bin Makefile
+	cat  boot/bootsect.bin boot/setup.bin boot/head.bin > boot/boot_setup.bin
 
-build/head.bin: src/boot/head.asm
-	nasm -fbin src/boot/head.asm -o build/head.bin
-
-build/:
-	mkdir build
-
-
-.PHONY: clean
 clean:
-	-rm -fr build/ kernel.img
+	rm boot/bootsect.bin
+	rm boot/setup.bin
+	rm boot/head.bin
+	rm boot/boot_setup.bin
 
 
-.PHONY: dbg
-dbg: clean kernel.img
-	-bochs -f bochsrc.bxrc
+
+buildimg : boot/boot_setup.bin Makefile
+	cat  boot/boot_setup.bin > kernel.img
+
+
+run : clean buildimg
+	qemu-system-i386 -fda kernel.img
+
+dbg : clean buildimg
+	bochsdbg -f bochsrc.bxrc
