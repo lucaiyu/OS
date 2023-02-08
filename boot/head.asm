@@ -60,9 +60,11 @@ newgdt:
 	call setup_paging
 
 	push panic
-	jmp 1*8:main
+	jmp main
 	jmp $
 
+
+%include "kernel/kernel.asm"
 
 
 setup_paging:
@@ -213,5 +215,3 @@ _gdt: dq 0x0000000000000000 ; NULL SEGMENT r-w-x
       dq 0x00c0920000000fff ; DATA SEGmENT R-W-x
       dq 0x0000000000000000 ; RESERVED SEGMENT r-w-x
       times 252 dq 0
-
-%include "kernel/kernel.asm"
