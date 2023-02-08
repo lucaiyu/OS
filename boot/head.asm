@@ -47,9 +47,9 @@ newgdt:
 	mov edi, 0xb8000+7*160
 	call printt
 
-	sti
-	int 0x80
-	cli
+	; sti
+	; int 0x80
+	; cli
 
 	call opena20
 
@@ -97,16 +97,6 @@ panic:
 	jmp $
 
 
-keyboard_test:
-	mov al, 11111101b
-	out 021h, al
-	dw 0x00eb,0x00eb
-	mov al, 11111111b
-	out 0A1h, al
-	dw	0x00eb,0x00eb
-	ret
-
-
 printt:
         mov  bl ,[esi]
         cmp  bl, 0
@@ -132,7 +122,7 @@ opena20:
 
 
 setup_idt:
-	lea edx, [generic_int]
+	lea edx, [keyboard_int]
 	mov eax,0x00080000
 	mov ax, dx
 	mov dx,0x8E00
@@ -140,9 +130,9 @@ setup_idt:
 	mov ecx, 256
 	idt_loop:
 		mov [edi],eax
-        mov [edi+4],edx
-        add  edi,8
-        loop idt_loop
+        	mov [edi+4],edx
+        	add  edi,8
+        	loop idt_loop
               
         lidt [idt_descr]
         ret   

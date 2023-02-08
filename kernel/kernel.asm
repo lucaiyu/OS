@@ -1,10 +1,20 @@
 %include "kernel/console.inc"
+%include "kernel/int.inc"
+%include "kernel/keyboard.inc"
 
 [bits 32]
 main:
 	call init
 	mov esi, initmsg
+	push 0x33333333
+	push 0x22222222
+	push 0x11111111
 	call printk
+	add esp, 12
+
+	call init_idt
+	call enable_keyboard
+	sti
 
 
 	jmp $
@@ -18,4 +28,4 @@ init:
 	popad
 	ret
 
-initmsg db 'all things inited', 0x0d, 0
+initmsg db 'format print test: % % % ', 0x0d, 0

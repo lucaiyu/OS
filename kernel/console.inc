@@ -139,6 +139,8 @@ printk: ; esi=char *str use stack to pass all formats like printk("hello, %x; wo
 	pushad
 	mov byte [0x90000], 0
 	inc byte [0x90001]
+	cmp byte [0x90001], 25
+	jg .interal_printk_nl_scoll
 	mov ebx, dword [0x90001]
 	and ebx, 0x000000FF
 	mov ax, bx
@@ -161,6 +163,11 @@ printk: ; esi=char *str use stack to pass all formats like printk("hello, %x; wo
 	popad
 	inc esi
 	jmp .interal_printk_loop
+	.interal_printk_nl_scoll:
+		call scoll
+		popad
+		inc esi
+		jmp .interal_printk_loop
 
 .interal_printk_hex2chr: ;edx=data
 	pushad
