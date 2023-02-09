@@ -12,13 +12,9 @@ main:
 	call printk
 	add esp, 12
 
-	mov ecx, 0x10
-	.l:
-		push ecx
-		mov esi, testmsg
-		call printk
-		add esp, 4
-		loop .l
+	call init_idt
+	call enable_keyboard
+	sti
 
 
 	jmp $
@@ -33,4 +29,3 @@ init:
 	ret
 
 initmsg db 'format print test: % % % ', 0x0d, 0
-testmsg db 'printk test %', 0x0d, 0
