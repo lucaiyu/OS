@@ -47,9 +47,9 @@ newgdt:
 	mov edi, 0xb8000+7*160
 	call printt
 
-	; sti
-	; int 0x80
-	; cli
+	sti
+	int 0x80
+	cli
 
 	call opena20
 
@@ -122,7 +122,7 @@ opena20:
 
 
 setup_idt:
-	lea edx, [keyboard_int]
+	lea edx, [generic_int]
 	mov eax,0x00080000
 	mov ax, dx
 	mov dx,0x8E00

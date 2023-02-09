@@ -64,6 +64,7 @@ putchar: ;al=char c
 			ret
 
 scoll:
+	xchg bx, bx
 	pushad
 	mov edi, 0xb8000
 	mov esi, 0xb8000+160
@@ -86,8 +87,8 @@ scoll:
 		.interal_scoll_fin_clear_fin:
 		; revert cursor
 		mov byte [0x90000], 0
-		mov ebx, dword [0x90001]
-		and ebx, 0x000000FF
+		mov byte [0x90001], 22
+		mov bx, 24
 		mov ax, bx
 		mov dl, 80
 		mul dl

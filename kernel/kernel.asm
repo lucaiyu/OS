@@ -12,17 +12,13 @@ main:
 	call printk
 	add esp, 12
 
-	;call init_idt
-	;call enable_keyboard
-	mov ecx, 0x0a
+	mov ecx, 0x10
 	.l:
 		push ecx
 		mov esi, testmsg
 		call printk
 		add esp, 4
-		xchg bx, bx
 		loop .l
-	sti
 
 
 	jmp $
