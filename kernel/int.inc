@@ -54,6 +54,8 @@ keyboard_int:
 	out 0x21, al
 	in al, 0x60
 
+	xchg bx, bx
+
 	push eax
 	mov esi, keyboard_int_msg
 	call printk

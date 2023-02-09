@@ -76,6 +76,14 @@ scoll:
 		jge .interal_scoll_fin
 		jmp .interal_scoll
 	.interal_scoll_fin:
+		mov ebx, 0
+		.interal_scoll_fin_clear:
+			mov byte [0xb8000+160*24+ebx], 0
+			add ebx, 1
+			cmp ebx, 160
+			jge .interal_scoll_fin_clear_fin
+			jmp .interal_scoll_fin_clear
+		.interal_scoll_fin_clear_fin:
 		; revert cursor
 		mov byte [0x90000], 0
 		mov ebx, dword [0x90001]
@@ -166,7 +174,7 @@ printk: ; esi=char *str use stack to pass all formats like printk("hello, %x; wo
 	.interal_printk_nl_scoll:
 		call scoll
 		popad
-		inc esi
+		dec esi
 		jmp .interal_printk_loop
 
 .interal_printk_hex2chr: ;edx=data
