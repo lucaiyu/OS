@@ -14,15 +14,14 @@ main:
 
 	call init_idt
 	call enable_keyboard
-	sti
 
+	sti
 
 	jmp $
 
 
 init:
 	pushad
-	; init cursor
 	mov byte [0x90000], 0x00
 	mov byte [0x90000+1], 0x0a
 	popad

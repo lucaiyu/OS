@@ -76,4 +76,4 @@ keyboard_int:
 
 
 
-keyboard_int_msg db 'keyboard int scancode: % ', 0x0d, 0
+keyboard_int_msg db 'keyboard int %', 0x0d, 0

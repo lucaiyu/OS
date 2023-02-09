@@ -61,7 +61,6 @@ newgdt:
 
 	push panic
 	jmp main
-	jmp $
 
 
 %include "kernel/kernel.asm"
