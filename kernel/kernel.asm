@@ -1,19 +1,16 @@
 %include "kernel/console.inc"
 %include "kernel/int.inc"
 %include "kernel/keyboard.inc"
+%include "kernel/ata.inc"
 
 [bits 32]
 main:
 	call init
 
-	sti
-	getloop:
-		call getchar
-		cmp al, 0
-		je getfail
-		call putchar
-		getfail:
-			jmp getloop
+	mov eax, 1
+	mov cl, 10
+	mov edi, 0xa0000
+	call ata_read
 
 	jmp $
 
@@ -27,7 +24,7 @@ init:
 	call enable_keyboard
 	call init_keyboard_buffer
 
-	sti
+	;sti
 
 	mov esi, initmsg
 	call printk

@@ -1,5 +1,5 @@
 default :
-	make run
+	make buildimg
 
 
 boot/bootsect.bin : boot/bootsect.asm boot/config.inc Makefile
@@ -33,4 +33,4 @@ run : clean buildimg
 	qemu-system-i386 -hda kernel.img
 
 dbg : clean buildimg
-	bochs
+	bochsdbg
