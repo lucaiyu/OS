@@ -33,4 +33,4 @@ run : clean buildimg
 	qemu-system-i386 -hda kernel.img
 
 dbg : clean buildimg
-	bochsdbg
+	bochs

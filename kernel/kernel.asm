@@ -7,10 +7,6 @@
 main:
 	call init
 
-	mov eax, 1
-	mov cl, 10
-	mov edi, 0xa0000
-	call ata_read
 
 	jmp $
 
@@ -23,8 +19,6 @@ init:
 	call init_idt
 	call enable_keyboard
 	call init_keyboard_buffer
-
-	;sti
 
 	mov esi, initmsg
 	call printk

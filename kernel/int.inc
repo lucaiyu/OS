@@ -19,7 +19,6 @@ init_idt:
 	mov al, 11111111b
 	out 0A1h, al
 	dw	0x00eb,0x00eb
-	sti
 	ret
 
 enable_keyboard:
