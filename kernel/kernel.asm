@@ -7,7 +7,6 @@
 main:
 	call init
 
-
 	jmp $
 
 
@@ -17,8 +16,10 @@ init:
 	mov byte [0x90000+1], 0x0a
 
 	call init_idt
-	call enable_keyboard
+	call open_keyboard
 	call init_keyboard_buffer
+
+	sti
 
 	mov esi, initmsg
 	call printk

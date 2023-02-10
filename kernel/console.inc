@@ -1,3 +1,37 @@
+clear_screen:
+	pushad
+	mov byte [0x90000], 10
+	mov byte [0x90001], 10
+	mov ecx, 160*24/2
+	mov edi, 0xb8000
+	clear_screen_loop:
+		mov byte [edi], 0
+		mov byte [edi+1], 0xf
+		add edi, 2
+		loop clear_screen_loop
+	mov bx, 0
+	mov dx, 0x03D4
+	mov al, 0x0F
+	out dx, al
+ 
+	inc dl
+	mov al, bl
+	out dx, al
+ 
+	dec dl
+	mov al, 0x0E
+	out dx, al
+ 
+	inc dl
+	mov al, bh
+	out dx, al
+	popad
+	ret
+
+
+
+
+
  interal_printk_nl:
 	pushad
 	mov byte [0x90000], 0

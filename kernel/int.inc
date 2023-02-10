@@ -21,7 +21,7 @@ init_idt:
 	dw	0x00eb,0x00eb
 	ret
 
-enable_keyboard:
+open_keyboard:
 	mov al, 11111101b
 	out 021h, al
 	dw 0x00eb,0x00eb

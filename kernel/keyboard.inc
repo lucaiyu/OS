@@ -2,6 +2,26 @@
 ;######################CALLABLE METHOD####################;
 ;#########################################################;
 
+clear_keybard_buffer:
+	pushad
+	mov edi, dword [0x90014]
+	xor ecx, ecx
+	mov cx, word [0x90010]
+	clear_keybard_buffer_loop:
+		mov byte [edi], 0
+		inc edi
+		loop clear_keybard_buffer_loop
+	popad
+	ret
+
+disable_keyboard:
+	and byte [0x90018], 11110111b
+	ret
+
+enable_keyboard:
+	or byte [0x90018], 0000100b
+	ret
+
 
 
 getchar: ;al=char chr
@@ -72,14 +92,14 @@ init_keyboard_buffer:
 	;		word used_size  ->  0x90012
 	;		ptr begin	->  0x90014
 	;
-	;		byte LED_status  -> 0x90018    CAPS_LOCK, SHIFT, CTRL, ALT, RESERVED, RESERVED, RESERVED, RESERVED
+	;		byte LED_status  -> 0x90018    CAPS_LOCK, SHIFT, CTRL, ALT, ENABLE, RESERVED, RESERVED, RESERVED
 	;}
 	; use config size 8-bytes
 	; buffer addr 0x91000-0x91400
-	mov word [0x90010], 0x400
+	mov word [0x90010], 0x10
 	mov word [0x90012], 0
 	mov dword [0x90014], 0x00091000
-	mov byte [0x90018], 0
+	mov byte [0x90018], 00001000b
 	ret
 
 
@@ -97,6 +117,11 @@ keyboard_int:
 	mov al, 0x01
 	out 0x21, al
 	in al, 0x60
+
+	mov dl, byte [0x90018]
+	and dl, 00001000b
+	cmp dl, 00001000b
+	jne keyboard_int_fin
 
 
 	cmp al, 0x1d

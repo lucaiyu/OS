@@ -95,6 +95,7 @@ nl:
 
 
 readsector: ;ch=cylinder dh=header cl=sector
+	xchg bx, bx
 	mov ah, 0x02
 	mov al, 1
 	mov bx, 0
