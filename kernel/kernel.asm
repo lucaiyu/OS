@@ -27,4 +27,3 @@ init:
 	ret
 
 initmsg db 'all devices inited', 0x0d, 0
-atamsg db 'ata read % % % %', 0x0d, 0

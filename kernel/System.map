@@ -1,0 +1,21 @@
+DISK.MAP
+
+LBA addressing (/dev/sda)
+
+/dev/sda1: total 1280 sectors
+0: mbr (1 sector)
+1-4: setup program (2 sectors)
+5-1279: kernel program (1275 sectors)
+
+
+/dev/sda2: data ext2
+1280-???? (???? sectors)
+
+
+
+MEMORY.MAP
+
+flat addressing (total 4GB 0x00000000-0xFFFFFFFF)
+
+kernel: 0x00000000-0x3FFFFFFFF
+user: 0x40000000-0xFFFFFFFF
