@@ -2,10 +2,21 @@
 %include "kernel/int.inc"
 %include "kernel/keyboard.inc"
 %include "kernel/ata.inc"
-
+%include "kernel/fat16.inc"
 [bits 32]
 main:
 	call init
+
+	mov eax, 1
+	call read_file
+
+	mov dword [0x140000], 0xffffffff
+	mov dword [0x140004], 0xaaaaaaaa
+	mov eax, 1
+	call write_file
+
+	mov esi, initmsg
+	call printk
 
 	jmp $
 
@@ -19,7 +30,9 @@ init:
 	call open_keyboard
 	call init_keyboard_buffer
 
-	sti
+	;sti
+
+	call fs_init
 
 	mov esi, initmsg
 	call printk
