@@ -7,17 +7,17 @@
 main:
 	call init
 
-	mov eax, 1
-	call read_file
+	mov esi, file1
+	call create_file
+	mov esi, file2
+	call create_file
+	mov esi, file3
+	call create_file
 
-	mov dword [0x140000], 0xffffffff
-	mov dword [0x140004], 0xaaaaaaaa
-	mov eax, 1
-	call write_file
 
-	mov esi, initmsg
+	mov esi, finmsg
 	call printk
-
+	call fs_write
 	jmp $
 
 
@@ -40,3 +40,7 @@ init:
 	ret
 
 initmsg db 'all devices inited', 0x0d, 0
+finmsg db 'all things done!', 0x0d, 0
+file1 db 'kernel.img', 0
+file2 db 'user.dat', 0
+file3 db 'system.bin', 0
