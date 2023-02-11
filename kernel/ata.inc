@@ -1,6 +1,5 @@
 ata_read: ; cl=sector_num ebx=LBA edi=buffer
 	pushad
-	push ecx
 	mov dx, 0x1f2
 	mov al, cl
 	out dx, al
@@ -38,34 +37,19 @@ ata_read: ; cl=sector_num ebx=LBA edi=buffer
 		cmp al, 0x08
 		jnz .wait_busy
 
-	xchg bx, bx
-
-	and cx, 0x00ff
+	and ecx, 0x000000ff
 	mov ax, 256
 	mul cx
+	mov cx, ax
 
 	mov dx, 0x1f0
 	read_loop:
+
 		in ax, dx
 		mov [edi], ax
 		add edi, 2
 		loop read_loop
 
 
-	pop ecx
-	mov dx, 0x1f2
-	in al, dx
-	xchg bx, bx
-	cmp al, cl
-	jne ata_err
 	popad
 	ret
-	ata_err:
-		popad
-		mov esi, ata_read_error
-		push ebx
-		call printk
-		add esp, 4
-		ret
-
-ata_read_error db 'ata read error in LBA %', 0x0d, 0
