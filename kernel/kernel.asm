@@ -7,7 +7,14 @@
 main:
 	call init
 
-	;call fs_write
+	mov esi, swapname
+	call create_file
+
+	call fopen
+	mov dword [0x140000], 0xffffffff
+	call fclose
+
+	call fs_write
 	mov esi, finmsg
 	call printk
 	jmp $
@@ -24,7 +31,7 @@ init:
 
 	sti
 
-	;call fs_init
+	call fs_init
 
 	mov esi, initmsg
 	call printk
@@ -33,3 +40,4 @@ init:
 
 initmsg db 'all devices inited', 0x0d, 0
 finmsg db 'all things done!', 0x0d, 0
+swapname db 'swapfile   '

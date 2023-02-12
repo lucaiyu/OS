@@ -4,6 +4,7 @@ DATA_ADDR equ 0x140000
 
 ferrmsg db 'BAD CLUSTER', 0x0d, 0
 createerrmsg db 'FAILED TO CREATE FILE: ROOT TABLE IS FULL', 0x0d, 0
+fopenerrmsg db 'NOT SUCH FILE', 0x0d, 0
 
 
 
@@ -19,7 +20,70 @@ createerrmsg db 'FAILED TO CREATE FILE: ROOT TABLE IS FULL', 0x0d, 0
 ; 0x1A-0x1B: file head cluster num
 ; 0x1C-0x1F: file size
 
-create_file: ; esi=char *name  like  foo000000bar
+
+fopen: ; esi=char *name  like  foo00000bar
+	pushad
+	mov edi, ROOT_ADDR
+	find_file_loop:
+	xor ebx, ebx
+		compare_name_loop:
+			mov al, byte [esi+ebx]
+			cmp al, byte [edi+ebx]
+			jne comapre_failed
+			inc ebx
+			cmp ebx, 11
+			jge file_name_found
+			jmp compare_name_loop
+		comapre_failed:
+			add edi, 32
+			cmp edi, DATA_ADDR
+			jge fopen_failed
+			jmp find_file_loop
+	file_name_found:
+		xor eax, eax
+		mov ax, word [edi+0x1a]
+		xchg bx, bx
+		call read_file
+		popad
+		ret
+	fopen_failed:
+		mov esi, fopenerrmsg
+		call printk
+		popad
+		ret
+
+fclose: ; esi=char *name  like  foo00000bar
+	pushad
+	mov edi, ROOT_ADDR
+	find_file_close_loop:
+	xor ebx, ebx
+		compare_name_close_loop:
+			mov al, byte [esi+ebx]
+			cmp al, byte [edi+ebx]
+			jne comapre_close_failed
+			inc ebx
+			cmp ebx, 11
+			jge file_name_close_found
+			jmp compare_name_close_loop
+		comapre_close_failed:
+			add edi, 32
+			cmp edi, DATA_ADDR
+			jge fclose_failed
+			jmp find_file_close_loop
+	file_name_close_found:
+		xor eax, eax
+		mov ax, word [edi+0x1a]
+		xchg bx, bx
+		call write_file
+		popad
+		ret
+	fclose_failed:
+		mov esi, fopenerrmsg
+		call printk
+		popad
+		ret
+
+create_file: ; esi=char *name  like  foo00000bar
 	pushad
 	mov edi, ROOT_ADDR
 	get_empty_struct:
@@ -46,6 +110,9 @@ create_file: ; esi=char *name  like  foo000000bar
 			mov byte [edi+0x0b], 0
 			mov byte [edi+0x0c], 11111111b
 			mov byte [edi+0x0d], 10000001b
+			call get_empty_cluster
+			xchg bx, bx
+			mov word [edi+0x1a], ax
 			popad
 			call fs_write
 			ret
@@ -102,6 +169,7 @@ read_file: ; eax=cluster num
 		push bx
 		cmp bx, 0xfff0
 		je cluster_read_error
+		xchg bx, bx
 
 		; read sector
 		mov cl, 1
@@ -111,6 +179,8 @@ read_file: ; eax=cluster num
 		call ata_read
 
 		pop bx
+
+		xchg bx, bx
 
 		cmp bx, 0xffff
 		je cluster_read_fin
@@ -160,9 +230,6 @@ write_file: ; eax=cluster num
 		cmp bx, 0xffff
 		je cluster_write_fin
 
-
-		xchg bx, bx
-
 		and ebx, 0x0000ffff
 		mov eax, ebx
 		mov ebx, 2
@@ -180,5 +247,23 @@ write_file: ; eax=cluster num
 
 	cluster_write_fin:
 		popad
+		ret
+
+
+get_empty_cluster: ; return ax=cluster num
+	push edi
+	mov edi, 0x100000
+	get_empty_cluster_loop:
+		cmp word [edi], 0
+		je get_empty_cluster_fin
+		add edi, 2
+		cmp edi, 0x120000
+		jge create_error
+		jmp get_empty_cluster_loop
+	get_empty_cluster_fin:
+		sub edi, 0x100000
+		shr edi, 1
+		mov ax, di
+		pop edi
 		ret
 
