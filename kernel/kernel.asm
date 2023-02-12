@@ -1,13 +1,13 @@
-%include "kernel/console.inc"
 %include "kernel/int.inc"
 %include "kernel/keyboard.inc"
+%include "kernel/console.inc"
 %include "kernel/ata.inc"
 %include "kernel/fat16.inc"
 [bits 32]
 main:
 	call init
 
-	call fs_write
+	;call fs_write
 	mov esi, finmsg
 	call printk
 	jmp $
@@ -24,7 +24,7 @@ init:
 
 	sti
 
-	call fs_init
+	;call fs_init
 
 	mov esi, initmsg
 	call printk

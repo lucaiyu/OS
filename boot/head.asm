@@ -3,13 +3,6 @@
 SETUPSEG equ DEF_SETUPSEG
 SYSSEG equ DEF_SYSSEG
 
-_pg_dir equ 0x0000
-
-pg0 equ  0x1000
-pg1 equ  0x2000
-pg2 equ  0x3000
-pg3 equ  0x4000
-
 _tmp_floppy_area equ 0x5000
 len_floppy_area equ 0x400
 
@@ -57,36 +50,12 @@ newgdt:
 	mov cl, 0x0f
 	mov edi, 0xb8000+8*160
 
-	call setup_paging
-
 	push panic
 	jmp main
 
 
 %include "kernel/kernel.asm"
 
-
-setup_paging:
-	mov dword [_pg_dir], pg0+7
-	mov dword [_pg_dir+4], pg1+7
-	mov dword [_pg_dir+8], pg2+7
-	mov dword [_pg_dir+12], pg3+7
-
-	mov edi, pg3+4092
-	mov eax, 0xfff007
-
-	std
-	go_on:
-		stosd
-		sub eax, 0x1000
-		jge go_on
-
-	xor eax, eax
-	mov cr3, eax
-	mov eax, cr0
-	or eax, 0x80000000
-	mov cr0, eax
-	ret
 
 panic:
 	mov esi, panicmsg

@@ -1,17 +1,59 @@
-FAT_ADDR equ 0xa00000
-ROOT_ADDR equ 0xa20000
-DATA_ADDR equ 0xa40000
+FAT_ADDR equ 0x100000
+ROOT_ADDR equ 0x120000
+DATA_ADDR equ 0x140000
+
+ferrmsg db 'BAD CLUSTER', 0x0d, 0
+createerrmsg db 'FAILED TO CREATE FILE: ROOT TABLE IS FULL', 0x0d, 0
 
 
 
 ; file struct (length 32 bytes)
 ; 0x00-0x07: name
 ; 0x08-0x0a: extension name
-; 0x0b-0x0d: permission (r-w-x)
-; 0x0e: attribute 00000001-normal 00000010-read only 00000100-dir 00000000-unused
-; 0x0f-0x10: begin cluster num
-; 0x11-0x12: cluster count
-; 0x13-0x1f: date data(optional) default 0
+; 0x0b: attribute 00000000b-file 00010000b-dir (ORG FAT16 REQUEST)
+; 0x0c-0x0d: addational info -- permission r-w-x -> 9bits
+;							 -- flag 0000000b-empty 0000001b-file 0000010b-dir -> 7bits
+; 0xoe-0x15: reserved
+; 0x16-0x17: mod time
+; 0x18-0x19: mod date
+; 0x1A-0x1B: file head cluster num
+; 0x1C-0x1F: file size
+
+create_file: ; esi=char *name  like  foo000000bar
+	pushad
+	mov edi, ROOT_ADDR
+	get_empty_struct:
+		cmp byte [edi+0x0d], 0
+		je write_file_info
+		add edi, 32
+		cmp edi, DATA_ADDR
+		jge create_error
+		jmp get_empty_struct
+	write_file_info:
+		push edi
+		xor ecx, ecx
+		write_file_name:
+			mov al, [esi]
+			mov [edi], al
+			inc edi
+			inc esi
+			inc ecx
+			cmp ecx, 11
+			jge write_file_attribute
+			jmp write_file_name
+		write_file_attribute:
+			pop edi
+			mov byte [edi+0x0b], 0
+			mov byte [edi+0x0c], 11111111b
+			mov byte [edi+0x0d], 10000001b
+			popad
+			call fs_write
+			ret
+	create_error:
+		mov esi, createerrmsg
+		call printk
+		popad
+		ret
 
 
 fs_init:
@@ -140,10 +182,3 @@ write_file: ; eax=cluster num
 		popad
 		ret
 
-
-
-get_unused_cluster: ; return eax=cluster num
-
-
-
-ferrmsg db 'BAD CLUSTER', 0x0d, 0

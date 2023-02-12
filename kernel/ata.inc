@@ -109,3 +109,5 @@ ata_write: ; cl=sector_num ebx=LBA esi=buffer
 
 	popad
 	ret
+
+

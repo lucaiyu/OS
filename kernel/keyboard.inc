@@ -155,7 +155,6 @@ keyboard_int:
 	pop es
 	pop ds
 	popad
-	xchg bx, bx
 	iret
 
 	keyboard_int_process:
