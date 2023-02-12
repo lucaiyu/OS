@@ -7,17 +7,9 @@
 main:
 	call init
 
-	mov esi, file1
-	call create_file
-	mov esi, file2
-	call create_file
-	mov esi, file3
-	call create_file
-
-
+	call fs_write
 	mov esi, finmsg
 	call printk
-	call fs_write
 	jmp $
 
 
@@ -30,7 +22,7 @@ init:
 	call open_keyboard
 	call init_keyboard_buffer
 
-	;sti
+	sti
 
 	call fs_init
 
@@ -41,6 +33,3 @@ init:
 
 initmsg db 'all devices inited', 0x0d, 0
 finmsg db 'all things done!', 0x0d, 0
-file1 db 'kernel.img', 0
-file2 db 'user.dat', 0
-file3 db 'system.bin', 0

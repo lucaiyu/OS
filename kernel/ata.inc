@@ -94,8 +94,6 @@ ata_write: ; cl=sector_num ebx=LBA esi=buffer
 		cmp al, 0x08
 		jnz wait_write_busy
 
-	xchg bx, bx
-
 	and ecx, 0x000000ff
 	mov ax, 256
 	mul cx

@@ -1,6 +1,6 @@
-FAT_ADDR equ 0x100000
-ROOT_ADDR equ 0x120000
-DATA_ADDR equ 0x140000
+FAT_ADDR equ 0xa00000
+ROOT_ADDR equ 0xa20000
+DATA_ADDR equ 0xa40000
 
 
 
@@ -14,134 +14,34 @@ DATA_ADDR equ 0x140000
 ; 0x13-0x1f: date data(optional) default 0
 
 
-create_file: ;esi=char *name  like  foo.bar
-	pushad
-	mov edx, esi
-	; check filename
-	mov ecx, 0
-	xchg bx, bx
-	filename_check_loop:
-		mov al, [esi]
-		cmp al, '.'
-		je extension_name_check_loop
-		; cmp al, ' '
-		; jbe illegal_filename
-		; cmp al, '/'
-		; jbe illegal_filename
-		; cmp al, '~'
-		; jg illegal_filename
-		inc esi
-		inc ecx
-		; cmp ecx, 9
-		; jg illegal_filename
-		jmp filename_check_loop
-
-	mov ecx, 0
-
-	xchg bx, bx
-	extension_name_check_loop:
-		mov al, [esi]
-		cmp al, 0
-		je find_empty_struct_loop
-		; cmp al, ' '
-		; jbe illegal_filename
-		; cmp al, '/'
-		; jbe illegal_filename
-		; cmp al, '~'
-		; jg illegal_filename
-		inc esi
-		inc ecx
-		; cmp ecx, 5
-		; jg illegal_filename
-		jmp extension_name_check_loop
-
-	xchg bx, bx
-
-	mov edi, 0x12000c
-	find_empty_struct_loop:
-		cmp byte [edi], 0
-		je start_create_file
-		add edi, 32
-		cmp edi, 0x140000
-		jge fsfullerr
-		jmp find_empty_struct_loop
-
-	start_create_file:
-		sub edi, 0x0c
-		push edi
-		mov esi, edx
-		write_name_loop:
-			cmp byte [esi], '.'
-			je write_extension
-			mov al, byte [esi]
-			mov byte [edi], al
-			inc esi
-			inc edi
-			jmp write_name_loop
-		write_extension:
-			pop edi
-			push edi
-			add edi, 0x08
-			write_extension_loop:
-				cmp byte [esi], 0
-				je create_fin
-				mov al, byte [esi]
-				mov byte [edi], al
-				inc esi
-				inc edi
-				jmp write_extension_loop
-	create_fin:
-		; write permission
-		pop edi
-		mov byte [edi+0x0b], 7
-		mov byte [edi+0x0c], 7
-		mov byte [edi+0x0d], 7
-		mov byte [edi+0x0e], 00000001b
-
-		popad
-		call fs_write
-		ret
-
-illfn db 'Illegal file name!', 0x0d, 0
-fsferr db 'Filesystem table is full!', 0x0d, 0
-
-	illegal_filename:
-		popad
-		mov esi, illfn
-		call printk
-		ret
-	fsfullerr:
-		popad
-		mov esi, fsferr
-		call printk
-		ret
-
-
 fs_init:
 	pushad
 	mov cl, 128
 	mov ebx, 1280
-	mov edi, 0x100000
+	mov edi, FAT_ADDR
 	call ata_read
 
 	mov cl, 128
 	mov ebx, 1408
-	mov edi, 0x120000
+	mov edi, ROOT_ADDR
 	call ata_read
+
+
 
 	popad
 	ret
 
 fs_write:
 	pushad
+
 	mov cl, 128
 	mov ebx, 1280
-	mov edi, 0x100000
+	mov esi, FAT_ADDR
 	call ata_write
 
 	mov cl, 128
 	mov ebx, 1408
-	mov edi, 0x120000
+	mov esi, ROOT_ADDR
 	call ata_write
 
 	popad
@@ -150,11 +50,11 @@ fs_write:
 
 read_file: ; eax=cluster num
 	pushad
-	mov esi, 0x100000
+	mov esi, FAT_ADDR
 	mov ebx, 2
 	mul ebx
 	add esi, eax
-	mov edi, 0x140000
+	mov edi, DATA_ADDR
 	cluster_read_loop:
 		mov bx, word [esi]
 		push bx
@@ -165,7 +65,7 @@ read_file: ; eax=cluster num
 		mov cl, 1
 		mov ebx, eax
 		add ebx, 1536
-		mov edi, 0x140000
+		mov edi, DATA_ADDR
 		call ata_read
 
 		pop bx
@@ -173,14 +73,11 @@ read_file: ; eax=cluster num
 		cmp bx, 0xffff
 		je cluster_read_fin
 
-
-		xchg bx, bx
-
 		and ebx, 0x0000ffff
 		mov eax, ebx
 		mov ebx, 2
 		mul ebx
-		mov esi, 0x100000
+		mov esi, FAT_ADDR
 		add esi, eax
 		jmp cluster_read_loop
 
