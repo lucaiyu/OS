@@ -21,7 +21,7 @@ fopenerrmsg db 'NOT SUCH FILE', 0x0d, 0
 ; 0x1C-0x1F: file size
 
 
-fopen: ; esi=char *name  like  foo00000bar
+fopen: ; esi=char *name  like  foo00000bar  return eax=handle
 	pushad
 	mov edi, ROOT_ADDR
 	find_file_loop:
@@ -42,9 +42,9 @@ fopen: ; esi=char *name  like  foo00000bar
 	file_name_found:
 		xor eax, eax
 		mov ax, word [edi+0x1a]
-		xchg bx, bx
-		call read_file
+		mov dword [0x90030], eax
 		popad
+		mov eax, dword [0x90030]
 		ret
 	fopen_failed:
 		mov esi, fopenerrmsg
@@ -52,36 +52,9 @@ fopen: ; esi=char *name  like  foo00000bar
 		popad
 		ret
 
-fclose: ; esi=char *name  like  foo00000bar
-	pushad
-	mov edi, ROOT_ADDR
-	find_file_close_loop:
-	xor ebx, ebx
-		compare_name_close_loop:
-			mov al, byte [esi+ebx]
-			cmp al, byte [edi+ebx]
-			jne comapre_close_failed
-			inc ebx
-			cmp ebx, 11
-			jge file_name_close_found
-			jmp compare_name_close_loop
-		comapre_close_failed:
-			add edi, 32
-			cmp edi, DATA_ADDR
-			jge fclose_failed
-			jmp find_file_close_loop
-	file_name_close_found:
-		xor eax, eax
-		mov ax, word [edi+0x1a]
-		xchg bx, bx
-		call write_file
-		popad
-		ret
-	fclose_failed:
-		mov esi, fopenerrmsg
-		call printk
-		popad
-		ret
+fclose: ; eax=handle
+	call write_file
+	ret
 
 create_file: ; esi=char *name  like  foo00000bar
 	pushad
@@ -111,8 +84,13 @@ create_file: ; esi=char *name  like  foo00000bar
 			mov byte [edi+0x0c], 11111111b
 			mov byte [edi+0x0d], 10000001b
 			call get_empty_cluster
-			xchg bx, bx
 			mov word [edi+0x1a], ax
+			; add cluster sig
+			mov edi, 0x100000
+			and eax, 0x0000ffff
+			shl eax, 1
+			add edi, eax
+			mov word [edi], 0xffff
 			popad
 			call fs_write
 			ret
@@ -157,19 +135,17 @@ fs_write:
 	ret
 
 
-read_file: ; eax=cluster num
+read_file: ; eax=cluster num  edi=buffer addr
 	pushad
 	mov esi, FAT_ADDR
 	mov ebx, 2
 	mul ebx
 	add esi, eax
-	mov edi, DATA_ADDR
 	cluster_read_loop:
 		mov bx, word [esi]
 		push bx
 		cmp bx, 0xfff0
 		je cluster_read_error
-		xchg bx, bx
 
 		; read sector
 		mov cl, 1
@@ -180,7 +156,6 @@ read_file: ; eax=cluster num
 
 		pop bx
 
-		xchg bx, bx
 
 		cmp bx, 0xffff
 		je cluster_read_fin
@@ -205,13 +180,12 @@ read_file: ; eax=cluster num
 		ret
 
 
-write_file: ; eax=cluster num
+write_file: ; eax=cluster num edi=buffer addr
 	pushad
 	mov esi, 0x100000
 	mov ebx, 2
 	mul ebx
 	add esi, eax
-	mov edi, 0x140000
 	cluster_write_loop:
 		mov bx, word [esi]
 		push bx

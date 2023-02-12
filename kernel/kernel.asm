@@ -11,6 +11,8 @@ main:
 	call create_file
 
 	call fopen
+	mov edi, 0x140000
+	call read_file
 	mov dword [0x140000], 0xffffffff
 	call fclose
 
