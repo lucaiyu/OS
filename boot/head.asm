@@ -164,8 +164,28 @@ panicmsg db 'KERNEL PANIC: kernel main die!', 0
 
 
 _idt: times 256 dq 0
-_gdt: dq 0x0000000000000000 ; NULL SEGMENT r-w-x
-      dq 0x00c09a0000000fff ; CODE SEGMENT R-w-X
-      dq 0x00c0920000000fff ; DATA SEGmENT R-W-x
-      dq 0x0000000000000000 ; RESERVED SEGMENT r-w-x
+_gdt: dw 0, 0, 0, 0 ; NULL SEGMENT r-w-x
+      ; KERNEL CODE SEGMENT R-w-X
+      dw 0x3fff ; limit low
+      dw 0 ; base_low
+      dw 0x9a00 ; access, base_middle
+      dw 0x00c0 ; base_high, flag, limit_high
+
+      ; KERNEL DATA SEGMENT R-W-x
+      dw 0x3fff ; limit low
+      dw 0 ; base_low
+      dw 0x9200 ; access, base_middle
+      dw 0x00c0 ; base_high, flag, limit_high
+
+      ; USER CODE SEGMENT R-w-X
+      dw 0xffff ; limit low
+      dw 0x4000 ; base_low
+      dw 0xfa00 ; access, base_middle
+      dw 0x00c0 ; base_high, flag, limit_high
+
+      ; USER DATA SEGMENT R-W-x
+      dw 0xffff ; limit low
+      dw 0x4000 ; base_low
+      dw 0xf200 ; access, base_middle
+      dw 0x00c0 ; base_high, flag, limit_high
       times 252 dq 0

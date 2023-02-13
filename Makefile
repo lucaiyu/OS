@@ -35,7 +35,8 @@ buildimg : boot/boot_setup.bin sda2.bin Makefile
 
 
 run : clean buildimg
-	qemu-system-i386 -hda kernel.img
+	qemu-system-x86_64 -hda kernel.img 
+
 
 dbg : clean buildimg
 	bochs

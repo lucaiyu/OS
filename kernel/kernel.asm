@@ -3,22 +3,17 @@
 %include "kernel/console.inc"
 %include "kernel/ata.inc"
 %include "kernel/fat16.inc"
+%include "kernel/fs.inc"
+%include "kernel/exception.inc"
 [bits 32]
 main:
 	call init
 
-	mov esi, swapname
-	call create_file
-
-	call fopen
-	mov edi, 0x140000
-	call read_file
-	mov dword [0x140000], 0xffffffff
-	call fclose
-
-	call fs_write
 	mov esi, finmsg
 	call printk
+
+	jmp 3*8+1:0
+
 	jmp $
 
 
@@ -42,4 +37,3 @@ init:
 
 initmsg db 'all devices inited', 0x0d, 0
 finmsg db 'all things done!', 0x0d, 0
-swapname db 'swapfile   '

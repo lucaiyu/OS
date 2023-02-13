@@ -4,7 +4,7 @@ DATA_ADDR equ 0x140000
 
 ferrmsg db 'BAD CLUSTER', 0x0d, 0
 createerrmsg db 'FAILED TO CREATE FILE: ROOT TABLE IS FULL', 0x0d, 0
-fopenerrmsg db 'NOT SUCH FILE', 0x0d, 0
+fopenerrmsg db 'Warning! file not found!', 0x0d, 0
 
 
 
@@ -21,9 +21,10 @@ fopenerrmsg db 'NOT SUCH FILE', 0x0d, 0
 ; 0x1C-0x1F: file size
 
 
-fopen: ; esi=char *name  like  foo00000bar  return eax=handle
+fopen: ; esi=char *name  like  foo.bar  return eax=handle
 	pushad
 	mov edi, ROOT_ADDR
+	call format_filename
 	find_file_loop:
 	xor ebx, ebx
 		compare_name_loop:
@@ -54,6 +55,7 @@ fopen: ; esi=char *name  like  foo00000bar  return eax=handle
 
 fclose: ; eax=handle
 	call write_file
+	call fs_sync
 	ret
 
 create_file: ; esi=char *name  like  foo00000bar
@@ -92,7 +94,7 @@ create_file: ; esi=char *name  like  foo00000bar
 			add edi, eax
 			mov word [edi], 0xffff
 			popad
-			call fs_write
+			call fs_sync
 			ret
 	create_error:
 		mov esi, createerrmsg
@@ -118,7 +120,7 @@ fs_init:
 	popad
 	ret
 
-fs_write:
+fs_sync:
 	pushad
 
 	mov cl, 128
